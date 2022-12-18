@@ -1,0 +1,12 @@
+Note Book commands:
+ "create_note" -
+ "show_note_book" -
+ "show_note" -
+ "show_note_page" -
+ "clear_note_book" -
+ "delete_note" -
+ "add_to_note" -
+ "edit_note" -
+ "edit_note_name" -
+ "search_in_notes" -
+ "sorted_by_tags" -
