@@ -367,14 +367,15 @@ class Handler:
     @staticmethod
     @bug_catcher
     def __instructions(category, *_):
-        if category == "contacts":
-            main_path = path.join("instructions", "contact_book.txt")
-        elif category == "notes":
-            main_path = path.join("instructions", "note_book.txt")
-        elif category == "file":
-            main_path = path.join("instructions", "file_sorter.txt")
-        else:
-            raise ValueError(f"I can't find instruction for {category}.")
+        match category:
+            case "contacts":
+                main_path = path.join("instructions", "contact_book.txt")
+            case "file":
+                main_path = path.join("instructions", "file_sorter.txt")
+            case "notes":
+                main_path = path.join("instructions", "note_book.txt")
+            case _:
+                raise ValueError(f"I can't find instruction for {category}.")
         with open(main_path, "r") as file:
             result = file.read()
         return result
