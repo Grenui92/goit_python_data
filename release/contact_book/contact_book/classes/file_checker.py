@@ -1,6 +1,7 @@
 import shutil
 import pathlib
 import os
+from threading import Thread
 from datetime import datetime
 
 
@@ -13,10 +14,13 @@ class FileSorter:
         self.__files_list = {}
         self.__absolute_folders = self.__new_absolute_folders_create()
         self.__translate_map: dict = self.__new_translate_map()
-
+        self.__threads = []
     def job(self):
         """Main function of sorting files"""
         self.__file_checking(self.path)
+        for thread in self.__threads:
+            thread.join()
+        self.__delete_other_dir(p=self.path)
         self.__show_results()
 
     def __file_checking(self, path) -> (list, list, dict):
@@ -25,10 +29,12 @@ class FileSorter:
         p = pathlib.Path(path)
         for item in p.iterdir():
             if item.is_dir() and item.name not in self.__absolute_folders:
-                self.__if_is_dir(path=p, item=item)
-                self.__delete_other_dir(p=p)
+                self.__file_checking(os.path.join(p, item.name))
             elif item.is_file():
-                self.__if_is_file(item=item)
+                thread_renamer = Thread(target=self.__if_is_file, args=(item, ))
+                self.__threads.append(thread_renamer)
+                thread_renamer.start()
+
 
     def __show_results(self):
         """Выведение результата всех операций. Списков расширений."""
@@ -40,10 +46,7 @@ class FileSorter:
         for directs in self.__files_list:
             print(directs, *self.__files_list[directs], sep='\n\t')
 
-    def __if_is_dir(self, path, item):
-        self.__file_checking(os.path.join(path, item.name))
-        new_name = self.__normalize(item.name)
-        item.rename(os.path.join(path, new_name))
+
 
     def __if_is_file(self, item):
         new_name = self.__normalize(item.stem)
@@ -70,15 +73,18 @@ class FileSorter:
             self.__files_list.setdefault("others", []).append(f'{new_name}{item.suffix}')
             self.__absolute_folders.setdefault("others", []).append(item.suffix)
 
-    @staticmethod
-    def __delete_other_dir(p):
+
+    def __delete_other_dir(self, p):
+        p = pathlib.Path(p)
         for item in p.iterdir():
-            try:
-                item.rmdir()
-            except FileNotFoundError:
-                pass
-            except OSError:
-                pass
+            if item.is_dir() and item.name not in self.__absolute_folders:
+                try:
+                    item.rmdir()
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    self.__delete_other_dir(os.path.join(p, item.name))
+                    item.rmdir()
 
     @staticmethod
     def __file_renamer(item, main_path_rename, k, new_name, now_time):
@@ -138,3 +144,9 @@ class FileSorter:
                 continue
             absolute_folder.setdefault(name, []).append(input(f'Введите расширение в формате exe (без точки), чтоб добавить в папку {name}: '))
         return absolute_folder
+
+
+if __name__ == "__main__":
+    user = "Downloads"
+    free = FileSorter(user)
+    free.job()
