@@ -31,7 +31,7 @@ class FileSorter:
             if item.is_dir() and item.name not in self.__absolute_folders:
                 self.__file_checking(os.path.join(p, item.name))
             elif item.is_file():
-                thread_renamer = Thread(target=self.__if_is_file, args=(item, ))
+                thread_renamer = Thread(target=self.__file_rename, args=(item,))
                 self.__threads.append(thread_renamer)
                 thread_renamer.start()
 
@@ -48,7 +48,7 @@ class FileSorter:
 
 
 
-    def __if_is_file(self, item):
+    def __file_rename(self, item):
         new_name = self.__normalize(item.stem)
         now_time = datetime.now().time().microsecond
         for k, v in self.__absolute_folders.items():

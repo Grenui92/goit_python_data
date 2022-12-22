@@ -43,20 +43,20 @@ class Note:
 
     def __init__(self, name: str, tags: list, text: str):
         self.name = name
-        self._tags = None
+        #self._tags = None
         self.tags = tags
         self.text = text
 
-    @property
-    def tags(self):
-        return self._tags
-
-    @tags.setter
-    def tags(self, value):
-        if len(value) < 1:
-            self._tags = []
-        else:
-            self._tags = [*value]
+    # @property
+    # def tags(self):
+    #     return self._tags
+    #
+    # @tags.setter
+    # def tags(self, value):
+    #     if len(value) < 1:
+    #         self._tags = []
+    #     else:
+    #         self._tags = [*value]
 
     def add_content(self, info):
         for piece in info:  # Ищем теги в тексте, именно так они добавляются изначально
